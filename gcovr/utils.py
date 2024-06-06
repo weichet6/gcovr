@@ -442,3 +442,37 @@ def get_md5_hexdigest(data: bytes) -> str:
     return (
         md5(data, usedforsecurity=False) if sys.version_info >= (3, 9) else md5(data)
     ).hexdigest()
+
+def strip_path_prefix(path: str, strip_count: int):
+    """
+    Strip off strip_count elements from the prefix of the path
+    e.g: /this/is/an/example/path
+    strip_count=0: this/is/an/example/path
+    strip_count=1: is/an/example/path
+    strip_count>len(path): original path
+    """
+
+    # remove redundent ./ or path/../to/
+    path = os.path.normpath(path)
+
+    path_backup = path;
+
+    # Make it relative for further operations
+    if path.startswith(os.sep):
+        path = path.replace(os.sep, "", 1)
+
+    # Split the path into components
+    path_components = path.split(os.sep)
+
+    # Do not strip if there isn't enough components
+    if len(path_components) <= strip_count:
+        LOGGER.debug(f"Can't strip off {strip_count} elements from {path}, returning original path")
+        return path_backup
+
+    # Remove the specified number of components from the beginning
+    stripped_components = path_components[strip_count:]
+
+    # Join the remaining components back into a path
+    stripped_path = os.sep.join(stripped_components)
+
+    return stripped_path

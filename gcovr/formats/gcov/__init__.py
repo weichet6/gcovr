@@ -196,6 +196,16 @@ class GcovHandler(BaseHandler):
                 type=int,
                 default=1,
             ),
+            GcovrConfigOption(
+                "source_from_gcov_prefix_strip",
+                ["--source_from_gcov_prefix_strip"],
+                config="source-from-gcov-prefix-strip",
+                group="gcov_options",
+                help="Set how many initial directory names to strip off the paths from gcno.",
+                nargs="?",
+                type=int,
+                default=None,
+            ),
         ]
 
     def validate_options(self) -> None:

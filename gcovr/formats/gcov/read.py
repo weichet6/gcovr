@@ -34,6 +34,7 @@ from ...utils import (
     commonpath,
     is_fs_case_insensitive,
     fix_case_of_path,
+    strip_path_prefix
 )
 from .workers import Workers, locked_directory
 from ...coverage import CovData
@@ -184,6 +185,15 @@ def process_gcov_data(
     # gcov writes filenames with '/' path separators even if the OS
     # separator is different, so we replace it with the correct separator
     source = source.replace("/", os.sep)
+
+    if options.source_from_gcov_prefix_strip:
+        # strip the prefix of the source file path read from gcno to
+        # allow path guessing with stripped relative path
+        prefix_strip = options.source_from_gcov_prefix_strip
+        LOGGER.debug(f"Source file path from gcov: {source}" )
+        LOGGER.debug(f"Apply prefix strip={prefix_strip} on path from gcov")
+        source = strip_path_prefix(source, prefix_strip)
+        LOGGER.debug(f"Stripped path from gcov: {source}" )
 
     fname = guess_source_file_name(
         source,
