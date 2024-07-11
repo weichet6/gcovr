@@ -668,10 +668,18 @@ def run_gcov_and_process_files(
                 object_directory = os.path.relpath(object_directory, chdir)
             except Exception:  # pragma: no cover
                 pass
+
+            # This is essential to provide backward compatibility as some .cu files is compiled
+            # using GCC 4.8.5, and those files will hang gcov as the block notation is different
+            # Haning position is gcov.c has_block() 
+            default_options = gcov_cmd.get_default_options()
+            if filename.endswith("cu.gcda") or filename.endswith("cu.gcno"):
+                default_options = [option for option in default_options if option != "--all-blocks"]
+
             out, err = gcov_cmd.run_with_args(
                 [
                     abs_filename,
-                    *gcov_cmd.get_default_options(),
+                    *default_options,
                     "--object-directory",
                     object_directory,
                 ],
